@@ -5,5 +5,4 @@ Toque ou clique nos muros para criar portais.
 
 
 ### TODO:
-- cesta
-- resize
+- points

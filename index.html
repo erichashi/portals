@@ -15,6 +15,9 @@
             width: 100%;
             height: 100%;
 
+            background-color: rgba(40, 40, 40);
+
+
             overscroll-behavior: contain;
             touch-action: manipulation;
         }
@@ -25,6 +28,14 @@
             width: 100%;
             margin-top: 10%;
         }
+        
+        /* const COLORS = [
+            "#2C3E50",
+            "#E7C823",
+            "#ECF0F1",
+            "#3498DB",
+            "#2980B9"
+        ] */
 
     </style>    
 </head>
@@ -34,12 +45,13 @@
         <!-- <canvas id="canvas"></canvas> -->
     </div>
 
-    <img src="bg.jpg" class="hidden" id="bg" alt="">
+    <img src="basket.png" class="hidden" id="basket" alt="">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js" integrity="sha512-IQLehpLoVS4fNzl7IfH8Iowfm5+RiMGtHykgZJl9AWMgqx0AmJ6cRWcB+GaGVtIsnC4voMfm8f2vwtY+6oPjpQ==" crossorigin="anonymous"></script>
     <script src="js/Ball.js"></script>
     <script src="js/Wall.js"></script>
     <script src="js/Portal.js"></script>
+    <script src="js/Target.js"></script>
     <script src="index.js"></script>
 </body>
 </html>

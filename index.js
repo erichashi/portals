@@ -1,35 +1,76 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const bg = document.getElementById('bg');
 // Set width and heights
-// canvas.height = innerHeight;
-// canvas.width = innerWidth;
+canvas.height = 600 //Math.floor(document.body.clientHeight*.8);
+canvas.width = canvas.height;
 
-// Global Variables
-var mouse = {
-    x: undefined,
-    y: undefined
+//resizing
+if(document.body.clientWidth < canvas.width){
+    canvas.width = document.body.clientWidth *.9;
+    canvas.height =  canvas.width;
 }
 
-var pause = true;
+//resizing
+let frame;
+window.addEventListener('resize', function(){
+    
+    canvas.height = 600 //Math.floor(document.body.clientHeight*.8);
+    canvas.width = canvas.height;
 
-const BLOCKSIZE = 50;
+    if(document.body.clientWidth < canvas.width){
+        canvas.width = document.body.clientWidth *.9;
+        canvas.height =  canvas.width;
+    }
 
+    BLOCKSIZE = Math.floor(canvas.height/12);
+
+    FRICTION = 0.6;
+    GRAVITY = BALLRADIUS/24;
+    
+    BALLRADIUS = Math.floor(BLOCKSIZE/4);
+
+    cancelAnimationFrame(frame)
+
+    init();
+    update();
+} )
+
+
+//handle clicks
+let mouse = {
+    x: 0,
+    y: 0
+}
+
+//constantes (let por causa do resize)
+let BLOCKSIZE = Math.floor(canvas.height/12);
+let BALLRADIUS = Math.floor(BLOCKSIZE/4);
+
+let FRICTION = 0.6;
+let GRAVITY = BALLRADIUS/24;
+
+const TARGETCOLOR = "#E7C823";
+const SUBTARGETCOLOR = "#3498DB";
+const BALLCOLOR = "orange";
+const BGCOLOR = 'rgba(40,40,40,0.2)';
+
+//Do not change
 const HORIZONTAL = 1;
 const VERTICAL = 2;
 
-const FRICTION = 0.6;
-const GRAVITY = 0.5;
+let thereistwoportals = false;
 
+//id para portais
 let id=0;
 
-// Event Listeners
 canvas.addEventListener('click', e => {
     mouse.x = e.offsetX;
     mouse.y = e.offsetY;
 
+    //se existem 2 portais, cortar o último
     if(portals.length >= 2){
+        //animação gsap
         gsap.to(portals[0], {
             radius: 0,
             duration: 0.3, 
@@ -37,17 +78,26 @@ canvas.addEventListener('click', e => {
                 portals.splice(0, 1);
             }
         });
-    };
+    } 
 
+    //iterar sobre muros, se clicou, adicionar portal
     walls.forEach(block => { 
         if (clickBlock(block)){
+
+            //vertical ou horizontal
             if(block.height > block.width){
-                portals.push(new Portal(block.x + (block.width/2), mouse.y, BLOCKSIZE/25, 'black', VERTICAL, id));
+            
+                portals.push(new Portal(block.x + (block.width/2), mouse.y, Math.floor(BLOCKSIZE/2), 'black', VERTICAL, id));
                 
             } else {
-                portals.push(new Portal(mouse.x, block.y + (block.height/2), BLOCKSIZE/25, 'black', HORIZONTAL, id));
+                portals.push(new Portal(mouse.x, block.y + (block.height/2), Math.floor(BLOCKSIZE/2), 'black', HORIZONTAL, id));
             };
-            id++;
+            id++; 
+            try{
+                portals[1].current = false;
+            } catch(e){
+                portals[0].current = false;
+            }
         };
     });
 }) 
@@ -61,86 +111,27 @@ function clickBlock(block){
         )
 }
 
-// window.addEventListener('resize',function(){
-//     canvas.width = window.innerWidth;
-//     canvas.height = window.innerHeight;
 
-//     init();
+//only for development mode
+// let pause = true;
+// document.addEventListener('keydown', e =>{
+//     if(e.keyCode === 32){
+//         pause = !pause
+//         update()
+//     };
 // } )
 
 
-document.addEventListener('keydown', e =>{
-    if(e.keyCode === 32){
-        pause = !pause
-        update()
-    };
-} )
-
-
-// Helpers
-
-// Objects
-
-
 // Initialization
-
-function getDistance(x1, y1, x2, y2){
-    let xdist = x2-x1;
-    let ydist = y2-y1;
-
-    return Math.sqrt(Math.pow(xdist, 2) + Math.pow(ydist, 2));
-}
-
-function Basket(x, y, size){
-    this.x = x;
-    this.y = y;
-    this.size = size;
-
-    this.update = () => {
-        this.draw();
-        
-        if(ball.y > this.y){ // baixo da bola
-            if(getDistance(this.x, this.y, ball.x, ball.y) - this.radius - ball.radius - 3 <= 0){
-                // pause=true;
-                ball.vel.y *= -FRICTION;
-                ball.vel.x *= -FRICTION;
-            };
-        
-        } else {
-
-            if(getDistance(this.x, this.y, ball.x, ball.y) - this.radius/2  <= 0){
-
-                // pause=true;
-                // console.log('ver');
-                ball.vel.y *= -FRICTION;
-                ball.vel.x *= -FRICTION;
-            };
-        };
-
-    }
-
-    this.draw = () => {
-        ctx.beginPath();
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 3;
-        ctx.arc(this.x, this.y, this.radius, 0 , Math.PI)
-        // ctx.arc(this.x, this.y, this.radius, 0 , Math.PI)
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-}
-
-
 let ball;
 let portals;
 let walls;
-let basket;
+let target;
 function init(){
     portals = [];
     walls = [];
-    basket = new Basket(canvas.width/4, canvas.height/2, 20);
-    ball = new Ball(canvas.width/2, canvas.height/2, 10, 'orange');
+    target = new Target(canvas.width/4, canvas.height/2, BLOCKSIZE);
+    ball = new Ball(canvas.width/2, canvas.height/2, BALLRADIUS, BALLCOLOR);
     drawScenario();
 }
 
@@ -153,23 +144,25 @@ function drawScenario(){
 }
 
 function update(){
-    ctx.fillStyle = 'rgba(40,40,40,0.2)';
+    ctx.fillStyle = BGCOLOR;
     ctx.fillRect(0,0,canvas.width, canvas.height);
-    // ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    if(portals.length === 2) thereistwoportals = true; else thereistwoportals = false;
     
     walls.forEach(block => block.update()); 
 
-    basket.update();
+    target.update();
 
     portals.forEach(portal => {
+        //animação
         if(portal.first){
             portal.radius = 0;
             portal.first = false;
             gsap.to(portal, {
-                radius: 25, 
+                radius: Math.floor(BLOCKSIZE/2), 
                 duration: 0.1,
                 onComplete: () => {
-                    portal.radius = 25;
+                    portal.radius = Math.floor(BLOCKSIZE/2);
                 }
             })
         }
@@ -178,9 +171,9 @@ function update(){
     
     ball.update();
 
-    if(!pause){   
-        requestAnimationFrame(update);
-    };
+    // if(!pause){   
+        frame = requestAnimationFrame(update);
+    // };
 }
 
 init()

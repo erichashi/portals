@@ -1,3 +1,6 @@
+//Helper functions
+
+//true if ball touches portal. false otherwise
 function touchPortal(x, y, radius, portal){
     if(portal.position === HORIZONTAL){
         if( x + radius <= portal.radius + portal.x &&
@@ -23,7 +26,7 @@ function touchPortal(x, y, radius, portal){
             } else return false;
     }
 }
-
+//set position para o portal-saída depois de teleportar
 function setPosition(other){
     if(other.more && other.position === HORIZONTAL){
         ball.x = other.x
@@ -45,7 +48,7 @@ function setPosition(other){
         ball.y = other.y;
     }
 }
-
+//mudar as velocidades depois de teleportar
 function setVelocities(portal, other, vx, vy){
     
     //Se H-H ou V-V e mesmo lado
@@ -76,7 +79,7 @@ function setVelocities(portal, other, vx, vy){
     }
 
 }
-
+//teleportar (setPosition + setVelocities)
 function teleport(portal, other){
     let prevvelx = ball.vel.x;
     let prevvely = ball.vel.y;
@@ -88,8 +91,8 @@ function teleport(portal, other){
     ball.teleportenable = false;
 
 }
-
-function getOther(portal){
+//recebe um portal, retorna o outro
+function getOtherPortal(portal){
     for (let i = 0; i < portals.length; i++) {
         if(portal.id !== portals[i].id){
             return portals[i];
@@ -102,8 +105,12 @@ function Ball(x, y, radius, color){
     this.y = y;
     this.radius = radius;
     this.color = color;
+
+    //booleans para liberar ou não a passagem
     this.teleporting = false;
-    this.teleportenable = true;
+    this.teleportenable = true; //teleport enable
+
+    //time to teleport
     this.ttt = 0;
 
     this.vel = {
@@ -111,40 +118,41 @@ function Ball(x, y, radius, color){
         y:0
     }
 
+    //portal in
     this.in = undefined;
+    //portal out
     this.out = undefined;
 
     this.update = function(){
-
-        // if(portals.length < 2) this.teleportenable = false
-        // else this.teleportenable = true;
 
         this.x += this.vel.x;
         this.y += this.vel.y;
         this.vel.y += GRAVITY;  
 
+        //se não estiver teleportando, teportar permitido e existem 2 portais
+        //ou seja, se estiver no estado normal
+        if(!this.teleporting && this.teleportenable && thereistwoportals){
 
-        if(!this.teleporting && this.teleportenable){
+            //checar colisão com portal
             portals.forEach(port => {
-
                 if(touchPortal(this.x, this.y, this.radius, port)){
 
+                    //setar in e out portals
                     this.in = port;
-                    this.out = getOther(port);
+                    this.out = getOtherPortal(port);
 
-                    // ball.teleportenable = false;
                     ball.teleporting = true; 
                 }
             })
         } 
 
-        
-        if(this.teleporting ){
-            // this.in = port;
-            this.out = getOther(this.in);
+        //pedaço de código que potencialmente seja comprimido
+        if(this.teleporting){
+            // this.out = getOtherPortal(this.in);
             teleport(this.in, this.out)
         } 
         
+        //depois de 10 frames, pode teleportar de novo
         if(!this.teleportenable){
             this.ttt++;
             if(this.ttt >= 10){
@@ -161,8 +169,9 @@ function Ball(x, y, radius, color){
     this.draw = function(){
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-        ctx.fillStyle = this.color
+        ctx.fillStyle = this.color;
         ctx.fill();    
+        ctx.strokeStyle = 'black';
         ctx.lineWidth = 1;    
         ctx.stroke();    
         ctx.closePath();
