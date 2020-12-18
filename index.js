@@ -1,14 +1,24 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+const scoretext = document.getElementById('scoretext');
+const timetext = document.getElementById('timetext');
+
+const textcontainer = document.querySelector('.text-container');
+const restartbtn = document.querySelector('.btn');
+const recordspan = document.getElementById('record');
+
+
 // Set width and heights
-canvas.height = 600 //Math.floor(document.body.clientHeight*.8);
+canvas.height = 600;
+textcontainer.style.width = `${canvas.height}px`;
 canvas.width = canvas.height;
 
 //resizing
 if(document.body.clientWidth < canvas.width){
     canvas.width = document.body.clientWidth *.9;
     canvas.height =  canvas.width;
+    textcontainer.style.width = `${canvas.height}px`;
 }
 
 //resizing
@@ -22,6 +32,8 @@ window.addEventListener('resize', function(){
         canvas.width = document.body.clientWidth *.9;
         canvas.height =  canvas.width;
     }
+
+    textcontainer.style.width = `${canvas.height}px`;
 
     BLOCKSIZE = Math.floor(canvas.height/12);
 
@@ -53,11 +65,18 @@ let GRAVITY = BALLRADIUS/24;
 const TARGETCOLOR = "#E7C823";
 const SUBTARGETCOLOR = "#3498DB";
 const BALLCOLOR = "orange";
-const BGCOLOR = 'rgba(40,40,40,0.2)';
+let BGCOLOR = 'rgba(40,40,40,0.2)';
 
 //Do not change
 const HORIZONTAL = 1;
 const VERTICAL = 2;
+
+const TOTALTIME = 30;
+
+let score = 0;
+let time = TOTALTIME;
+let record = 0;
+
 
 let thereistwoportals = false;
 
@@ -68,21 +87,28 @@ canvas.addEventListener('click', e => {
     mouse.x = e.offsetX;
     mouse.y = e.offsetY;
 
-    //se existem 2 portais, cortar o último
-    if(portals.length >= 2){
-        //animação gsap
-        gsap.to(portals[0], {
-            radius: 0,
-            duration: 0.3, 
-            onComplete: () => {
-                portals.splice(0, 1);
-            }
-        });
-    } 
+    
+    if(pause) {
+        pause = false; 
+        restartbtn.style.opacity = "1"
+        update();
+    };
 
     //iterar sobre muros, se clicou, adicionar portal
     walls.forEach(block => { 
         if (clickBlock(block)){
+
+            //se existem 2 portais, cortar o último
+            if(portals.length >= 2){
+                //animação gsap
+                gsap.to(portals[0], {
+                    radius: 0,
+                    duration: 0.3, 
+                    onComplete: () => {
+                        portals.splice(0, 1);
+                    }
+                });
+            } 
 
             //vertical ou horizontal
             if(block.height > block.width){
@@ -113,13 +139,13 @@ function clickBlock(block){
 
 
 //only for development mode
-// let pause = true;
-// document.addEventListener('keydown', e =>{
-//     if(e.keyCode === 32){
-//         pause = !pause
-//         update()
-//     };
-// } )
+let pause = true;
+document.addEventListener('keydown', e =>{
+    if(e.keyCode === 32){
+        pause = !pause
+        update()
+    };
+} )
 
 
 // Initialization
@@ -127,12 +153,21 @@ let ball;
 let portals;
 let walls;
 let target;
+let gameover = false;
 function init(){
+    score=0;
+    time=TOTALTIME;
+    gameover = false;
+
     portals = [];
     walls = [];
     target = new Target(canvas.width/4, canvas.height/2, BLOCKSIZE);
     ball = new Ball(canvas.width/2, canvas.height/2, BALLRADIUS, BALLCOLOR);
     drawScenario();
+    scoretext.innerHTML = score;
+    timetext.innerHTML = time;
+    recordspan.innerHTML = record;
+
 }
 
 function drawScenario(){
@@ -143,37 +178,72 @@ function drawScenario(){
 
 }
 
+function restart(){
+    gameover = true;
+    restartbtn.style.opacity = ".3"
+    if(score > record) record = score;
+    gsap.to(ball, {
+        delay: 1,
+        x: canvas.width/2,
+        y: canvas.height/2,
+        onComplete: () => {
+            init();
+            // restartbtn.style.opacity = "1"
+            BGCOLOR = 'rgba(40,40,40,1)';
+            update();
+            BGCOLOR = 'rgba(40,40,40,0.2)';
+            pause=true;
+        }
+    })
+}
+
+let t=0;
 function update(){
     ctx.fillStyle = BGCOLOR;
     ctx.fillRect(0,0,canvas.width, canvas.height);
-
-    if(portals.length === 2) thereistwoportals = true; else thereistwoportals = false;
     
-    walls.forEach(block => block.update()); 
-
-    target.update();
-
-    portals.forEach(portal => {
-        //animação
-        if(portal.first){
-            portal.radius = 0;
-            portal.first = false;
-            gsap.to(portal, {
-                radius: Math.floor(BLOCKSIZE/2), 
-                duration: 0.1,
-                onComplete: () => {
-                    portal.radius = Math.floor(BLOCKSIZE/2);
-                }
-            })
+    if(!gameover){
+        t++;
+        if(t >= 60) {
+            t = 0;
+            time--;
+            timetext.innerHTML = time;
         }
-        portal.draw()
-    });    
-    
-    ball.update();
 
-    // if(!pause){   
+        if(time <= 0) {
+            restart();
+        }
+
+        if(portals.length === 2) thereistwoportals = true; else thereistwoportals = false;
+        walls.forEach(block => block.update()); 
+
+        target.update();
+
+        portals.forEach(portal => {
+            //animação
+            if(portal.first){
+                portal.radius = 0;
+                portal.first = false;
+                gsap.to(portal, {
+                    radius: Math.floor(BLOCKSIZE/2), 
+                    duration: 0.1,
+                    onComplete: () => {
+                        portal.radius = Math.floor(BLOCKSIZE/2);
+                    }
+                })
+            }
+            portal.draw()
+        });    
+        
+        ball.update();
+    } else {
+        ball.draw();
+    }
+    
+
+    if(!pause){   
         frame = requestAnimationFrame(update);
-    // };
+    };
 }
 
 init()

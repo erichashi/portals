@@ -14,6 +14,7 @@ function Target(x, y, size){
     this.x = x;
     this.y = y;
     this.size = size;
+    this.on = true;
     
     //área em azul
     this.sub = {
@@ -75,6 +76,9 @@ function Target(x, y, size){
                 break;
         }
 
+        this.on = true
+        scoretext.innerHTML = score++;
+        // score++;
 
     }
 
@@ -85,8 +89,8 @@ function Target(x, y, size){
         if(touchTarget(this, this.size, this.size) ){
 
             // se encostou no sub
-            if( touchTarget(this.sub, this.sub.width, this.sub.height)){
-                
+            if( touchTarget(this.sub, this.sub.width, this.sub.height) && this.on){
+                this.on = false;
                 gsap.to( this, {
                     size: 0,
                         // duration = 0.1,

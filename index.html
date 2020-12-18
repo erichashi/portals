@@ -8,6 +8,12 @@
         .hidden {
             display: none;
         }
+
+        *{
+            font-family: sans-serif;
+            font-size: revert;
+            color: white;
+        }
         
         body{
             margin: 0;
@@ -22,30 +28,54 @@
             touch-action: manipulation;
         }
 
-        div {
+        .canvas-container {
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-top: 10%;
         }
-        
-        /* const COLORS = [
-            "#2C3E50",
-            "#E7C823",
-            "#ECF0F1",
-            "#3498DB",
-            "#2980B9"
-        ] */
 
+        .text {
+            
+        }
+
+        .text-container {
+            margin-top: 5%;
+            font-size: large;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            border: none;
+            font-size: inherit;
+            cursor: pointer;
+            padding: 1% 2%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            background: #cb4e4e;
+            color: #fff;
+        }
+
+
+        
     </style>    
 </head>
-<body>
-    <div>
-        <canvas id="canvas" height="600px" width="800px" style="border: 1px solid black"> </canvas>
-        <!-- <canvas id="canvas"></canvas> -->
-    </div>
 
-    <img src="basket.png" class="hidden" id="basket" alt="">
+<body>
+    <div style="text-align: -webkit-center;">
+        <div class="text-container">
+            <p id="scoretext"class="text" ></p>
+            <p id="timetext" class="text"></p>
+        </div>
+    </div>
+    <div class="canvas-container">
+        <canvas id="canvas" style="border: 1px solid black"> </canvas>
+    </div>
+    <div style="text-align: center; margin-top: 3%;">
+        <button style="opacity: 0.3;" class="btn" onclick="restart()">Restart</button>
+        <p class="text">Record: <span id="record"></span></p>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js" integrity="sha512-IQLehpLoVS4fNzl7IfH8Iowfm5+RiMGtHykgZJl9AWMgqx0AmJ6cRWcB+GaGVtIsnC4voMfm8f2vwtY+6oPjpQ==" crossorigin="anonymous"></script>
     <script src="js/Ball.js"></script>
