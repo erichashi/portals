@@ -35,6 +35,8 @@ canvas.addEventListener('click', e => {
                 portals.push(new Portal(mouse.x, block.y + (block.height/2), Math.floor(BLOCKSIZE/2), 'black', HORIZONTAL, id));
             };
             id++; 
+            touch.currentTime = 0;
+            touch.play();
             try{
                 portals[1].current = false;
             } catch(e){

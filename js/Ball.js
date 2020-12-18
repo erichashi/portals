@@ -81,6 +81,8 @@ function setVelocities(portal, other, vx, vy){
 }
 //teleportar (setPosition + setVelocities)
 function teleport(portal, other){
+    entering.currentTime = 0;
+    entering.play();
     let prevvelx = ball.vel.x;
     let prevvely = ball.vel.y;
 

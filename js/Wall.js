@@ -18,24 +18,33 @@ function Wall(x, y, width, height){
                     if(ball.radius + ball.y >= this.y ){
                         ball.y = this.y - ball.radius;
                         ball.vel.y *= -FRICTION;
+                        
+                        bounce.currentTime = 0;
+                        bounce.play();
                     } 
-                    
+
                 } else { // up
                     
                     if(ball.y - ball.radius <= this.y + this.height ){
                         ball.y = this.y + this.height + ball.radius; 
                         ball.vel.y *= -FRICTION;
+                        bounce.currentTime = 0;
+                        bounce.play();
                     } 
                     
+
                 }
                  
             } else { // horizontal colison (||)
                 
+
                 if(this.x < canvas.width/2){ // left
                     
                     if(ball.x - ball.radius <= this.x + this.width ){
                         ball.x = this.x + this.width + ball.radius; 
                         ball.vel.x *= -FRICTION;
+                        bounce.currentTime = 0;
+                        bounce.play();
                     } 
                     
                 } else { // right
@@ -43,6 +52,9 @@ function Wall(x, y, width, height){
                     if(ball.x + ball.radius >= this.x){
                         ball.x = this.x - ball.radius;
                         ball.vel.x *= -FRICTION;
+
+                        bounce.currentTime = 0;
+                        bounce.play();
                     } 
                     
                 }

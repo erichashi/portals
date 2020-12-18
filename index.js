@@ -8,6 +8,14 @@ const textcontainer = document.querySelector('.text-container');
 const restartbtn = document.querySelector('.btn');
 const recordspan = document.getElementById('record');
 
+//audio
+const done = new Audio("/sounds/piece-of-cake.mp3")
+const touch = new Audio("/sounds/pling.wav")
+const timebeep = new Audio("/sounds/time.mp3")
+const point = new Audio("/sounds/hide-and-seek.mp3")
+const entering = new Audio("/sounds/juntos-607.mp3")
+const bounce = new Audio("/sounds/intuition-561.mp3")
+bounce.volume = .5;
 
 // Set width and heights
 canvas.height = 600;
@@ -110,11 +118,12 @@ function drawScenario(){
 }
 
 function restart(){
+    done.play();
     gameover = true;
     restartbtn.style.opacity = ".3"
     if(score > record) record = score;
     gsap.to(ball, {
-        delay: 1,
+        delay: 1.8,
         x: canvas.width/2,
         y: canvas.height/2,
         onComplete: () => {
@@ -136,12 +145,16 @@ function update(){
         t++;
         if(t >= 60) {
             t = 0;
+            timebeep.pause();
+            timebeep.currentTime = 0;
             time--;
             timetext.innerHTML = time;
         }
 
-        if(time <= 0) {
-            restart();
+        if(time <= 3) {
+            if(time<=0) restart();
+            else timebeep.play();
+            
         }
 
         if(portals.length === 2) thereistwoportals = true; else thereistwoportals = false;

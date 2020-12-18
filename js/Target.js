@@ -91,6 +91,7 @@ function Target(x, y, size){
 
             // se encostou no sub
             if( touchTarget(this.sub, this.sub.width, this.sub.height) && this.on){
+                point.play();
                 this.on = false;
                 gsap.to( this, {
                     size: 0,
