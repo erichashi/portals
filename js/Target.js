@@ -77,7 +77,8 @@ function Target(x, y, size){
         }
 
         this.on = true
-        scoretext.innerHTML = score++;
+        score++;
+        scoretext.innerHTML = score;
         // score++;
 
     }
