@@ -43,7 +43,7 @@
         .btn {
             border: none;
             font-size: inherit;
-            cursor: pointer;
+            cursor: not-allowed;
             padding: 1% 2%;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -72,13 +72,21 @@
         <p class="text">Record: <span id="record"></span></p>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js" integrity="sha512-IQLehpLoVS4fNzl7IfH8Iowfm5+RiMGtHykgZJl9AWMgqx0AmJ6cRWcB+GaGVtIsnC4voMfm8f2vwtY+6oPjpQ==" crossorigin="anonymous"></script>
+    <div id="scores-container">
+
+        <h1>Highscores</h1>
+
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js" integrity="sha512-IQLehpLoVS4fNzl7IfH8Iowfm5+RiMGtHykgZJl9AWMgqx0AmJ6cRWcB+GaGVtIsnC4voMfm8f2vwtY+6oPjpQ==" crossorigin="anonymous"></script> 
+
     <script src="js/Ball.js"></script>
     <script src="js/Wall.js"></script>
     <script src="js/Portal.js"></script>
     <script src="js/Target.js"></script>
     <script src="js/EventHandlers.js"></script>
-    <script src="index.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
 

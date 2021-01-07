@@ -9,12 +9,12 @@ const restartbtn = document.querySelector('.btn');
 const recordspan = document.getElementById('record');
 
 //audio
-const done = new Audio("/sounds/piece-of-cake.mp3")
-const touch = new Audio("/sounds/pling.wav")
-const timebeep = new Audio("/sounds/time.mp3")
-const point = new Audio("/sounds/hide-and-seek.mp3")
-const entering = new Audio("/sounds/juntos-607.mp3")
-const bounce = new Audio("/sounds/intuition-561.mp3")
+let touch = new Audio("sounds/pling.wav")
+let done = new Audio("sounds/piece-of-cake.mp3")
+let timebeep = new Audio("sounds/time.mp3")
+let point = new Audio("sounds/hide-and-seek.mp3")
+let entering = new Audio("sounds/juntos-607.mp3")
+let bounce = new Audio("sounds/intuition-561.mp3")
 bounce.volume = .5;
 
 // Set width and heights
@@ -93,6 +93,8 @@ let portals;
 let walls;
 let target;
 let gameover = false;
+
+
 function init(){
     score=0;
     time=TOTALTIME;
@@ -107,7 +109,9 @@ function init(){
     timetext.innerHTML = time;
     recordspan.innerHTML = record;
 
+
 }
+
 
 function drawScenario(){
     walls.push(new Wall(0, 0, canvas.width, BLOCKSIZE));
@@ -117,11 +121,36 @@ function drawScenario(){
 
 }
 
-function restart(){
+async function restart(){
+    done.currentTime = 0;
     done.play();
     gameover = true;
-    restartbtn.style.opacity = ".3"
+    restartbtn.style.opacity = ".3";
+    restartbtn.style.cursor = "not-allowed";
+    restartbtn.disabled = true;
+    
     if(score > record) record = score;
+
+    if (score >= lastscore) {
+        let name = prompt("Parabéns: você está no top 6! Digite um nome para registrar");
+
+        if(name){
+            let data = {name, score}
+            let options = {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }
+    
+            let response = await fetch('/api/scores', options);
+            let djson = await response.json();
+            console.log(djson);
+        }
+
+    }
+
     gsap.to(ball, {
         delay: 1.8,
         x: canvas.width/2,
@@ -189,5 +218,22 @@ function update(){
     };
 }
 
-init()
-update();
+let lastscore = 0;
+async function run(){
+    let response = await fetch('/api/scores');
+    let data = await response.json();
+
+    data.forEach(item => {
+        let root = document.createElement('li');
+        root.innerHTML = `${item.name}: ${item.score}`;
+        document.getElementById('scores-container').append(root)
+        lastscore = item.score;
+    });
+};
+
+
+document.addEventListener('DOMContentLoaded', ()=> {
+    init()
+    update();
+    run();
+})

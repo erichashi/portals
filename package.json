@@ -1,0 +1,24 @@
+{
+  "name": "portals",
+  "version": "1.0.0",
+  "description": "Toque ou clique nos muros para criar portais.  \r Encoste no bloco para pontuar",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abac-axi/portals.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Abac-axi/portals/issues"
+  },
+  "homepage": "https://github.com/Abac-axi/portals#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nedb": "^1.8.0"
+  }
+}

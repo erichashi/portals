@@ -6,7 +6,9 @@ canvas.addEventListener('click', e => {
     
     if(pause) {
         pause = false; 
-        restartbtn.style.opacity = "1"
+        restartbtn.style.opacity = "1";
+        restartbtn.style.cursor = 'pointer';
+        restartbtn.disabled = false;
         update();
     };
 
