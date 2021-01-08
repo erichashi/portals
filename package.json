@@ -2,10 +2,10 @@
   "name": "portals",
   "version": "1.0.0",
   "description": "Toque ou clique nos muros para criar portais.  \r Encoste no bloco para pontuar",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",

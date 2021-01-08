@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const main = document.querySelector('main')
 
 const scoretext = document.getElementById('scoretext');
 const timetext = document.getElementById('timetext');
@@ -17,27 +18,11 @@ let entering = new Audio("sounds/juntos-607.mp3")
 let bounce = new Audio("sounds/intuition-561.mp3")
 bounce.volume = .5;
 
+
 // Set width and heights
-canvas.height = 600;
-textcontainer.style.width = `${canvas.height}px`;
+canvas.height = main.clientWidth;
 canvas.width = canvas.height;
 
-//resizing
-if(document.body.clientWidth < canvas.width){
-    canvas.width = document.body.clientWidth *.9;
-    canvas.height =  canvas.width;
-    textcontainer.style.width = `${canvas.height}px`;
-}
-
-//frame to pause when resizing
-let frame;
-
-
-//handle clicks
-let mouse = {
-    x: 0,
-    y: 0
-}
 
 //constantes (let por causa do resize)
 let BLOCKSIZE = Math.floor(canvas.height/12);
@@ -51,31 +36,11 @@ const SUBTARGETCOLOR = "#3498DB";
 const BALLCOLOR = "orange";
 let BGCOLOR = 'rgba(40,40,40,0.2)';
 
+const TOTALTIME = 30;
+
 //Do not change
 const HORIZONTAL = 1;
 const VERTICAL = 2;
-
-const TOTALTIME = 30;
-
-let score = 0;
-let time = TOTALTIME;
-let record = 0;
-
-
-let thereistwoportals = false;
-
-//id para portais
-let id=0;
-
-function clickBlock(block){
-    return(
-        block.x  <= mouse.x && 
-        block.x + block.width >= mouse.x &&
-        block.y <= mouse.y &&
-        block.y + block.height >= mouse.y
-        )
-}
-
 
 let pause = true;
 //only for development mode
@@ -86,32 +51,19 @@ let pause = true;
 //     };
 // } )
 
+//last score: valor minimo necessario para aparecer no ranking
+let lastscore = 0;
+async function getLastScore(){
+    let response = await fetch('/api/scores');
+    let data;
+    try {
+        data = await response.json();
+        lastscore = data[data.length-1].score;
+    } catch (e) {
+        return;
+    }
 
-// Initialization
-let ball;
-let portals;
-let walls;
-let target;
-let gameover = false;
-
-
-function init(){
-    score=0;
-    time=TOTALTIME;
-    gameover = false;
-
-    portals = [];
-    walls = [];
-    target = new Target(canvas.width/4, canvas.height/2, BLOCKSIZE);
-    ball = new Ball(canvas.width/2, canvas.height/2, BALLRADIUS, BALLCOLOR);
-    drawScenario();
-    scoretext.innerHTML = score;
-    timetext.innerHTML = time;
-    recordspan.innerHTML = record;
-
-
-}
-
+};
 
 function drawScenario(){
     walls.push(new Wall(0, 0, canvas.width, BLOCKSIZE));
@@ -121,18 +73,46 @@ function drawScenario(){
 
 }
 
+
+// Initialization
+let ball;
+let portals;
+let walls;
+let target;
+
+let gameover = false;
+
+let score = 0;
+let time = TOTALTIME;
+
+let thereistwoportals = false;
+
+//id para portais
+let portalid=0;
+
+//variavel que acrescenta a cada frame
+let timeframe=0;
+
+
 async function restart(){
     done.currentTime = 0;
     done.play();
+
     gameover = true;
+
+    //restart btn props
     restartbtn.style.opacity = ".3";
     restartbtn.style.cursor = "not-allowed";
     restartbtn.disabled = true;
     
-    if(score > record) record = score;
+    //local storage
+    if(score > localStorage.getItem('r')){
+        localStorage.setItem('r', score)
+    };
 
+    //se score estiver no acima do lastscore, postar score na API
     if (score >= lastscore) {
-        let name = prompt("Parabéns: você está no top 6! Digite um nome para registrar");
+        let name = prompt("Parabéns: sua pontuação entrou na lista! Digite um nome para registrar");
 
         if(name){
             let data = {name, score}
@@ -151,6 +131,7 @@ async function restart(){
 
     }
 
+    //gsap ball animation
     gsap.to(ball, {
         delay: 1.8,
         x: canvas.width/2,
@@ -165,28 +146,54 @@ async function restart(){
     })
 }
 
-let t=0;
+
+function init(){
+    score=0;
+    time=TOTALTIME;
+    gameover = false;
+    thereistwoportals = false;
+
+    portals = [];
+    walls = [];
+    target = new Target(canvas.width/4, canvas.height/2, BLOCKSIZE);
+    ball = new Ball(canvas.width/2, canvas.height/2, BALLRADIUS, BALLCOLOR);
+
+
+    drawScenario();
+    scoretext.innerHTML = score;
+    timetext.innerHTML = time;
+    recordspan.innerHTML = localStorage.getItem('r') * 1;
+
+
+}
+
 function update(){
     ctx.fillStyle = BGCOLOR;
     ctx.fillRect(0,0,canvas.width, canvas.height);
     
     if(!gameover){
-        t++;
-        if(t >= 60) {
-            t = 0;
-            timebeep.pause();
-            timebeep.currentTime = 0;
+
+        //timer
+        timeframe++;
+        //one second
+        if(timeframe >= 60) {
+            timeframe = 0;
             time--;
             timetext.innerHTML = time;
+            // timebeep.pause();
+            // timebeep.currentTime = 0;
+
+            if(time <= 3) {
+                timebeep.currentTime = 0;
+                if(time>0){timebeep.play()}
+                else{ 
+                    timebeep.pause();
+                    restart(); 
+                }
+            }
         }
 
-        if(time <= 3) {
-            if(time<=0) restart();
-            else timebeep.play();
-            
-        }
 
-        if(portals.length === 2) thereistwoportals = true; else thereistwoportals = false;
         walls.forEach(block => block.update()); 
 
         target.update();
@@ -208,32 +215,21 @@ function update(){
         });    
         
         ball.update();
-    } else {
-        ball.draw();
-    }
-    
 
+
+    } else ball.draw(); // ao perder, apenas desenhar a bola
+    
+    
     if(!pause){   
-        frame = requestAnimationFrame(update);
+        requestAnimationFrame(update);
     };
 }
 
-let lastscore = 0;
-async function run(){
-    let response = await fetch('/api/scores');
-    let data = await response.json();
-
-    data.forEach(item => {
-        let root = document.createElement('li');
-        root.innerHTML = `${item.name}: ${item.score}`;
-        document.getElementById('scores-container').append(root)
-        lastscore = item.score;
-    });
-};
-
 
 document.addEventListener('DOMContentLoaded', ()=> {
+    getLastScore();
     init()
     update();
-    run();
-})
+});
+
+//o jogo inicia no EventHandlers.js

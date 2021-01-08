@@ -1,0 +1,72 @@
+.hidden {
+    display: none;
+}
+
+p, a, h1, h3{
+    font-family: sans-serif;
+    font-size: revert;
+    color: white;
+}
+
+body{
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background-color: rgba(40, 40, 40);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overscroll-behavior: contain;
+    touch-action: manipulation;
+
+}
+
+main{
+    width: 95%;
+    display: inline-block;
+    text-align: center;
+}
+
+.text-container {
+    font-size: large;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* .canvas-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+} */
+
+.btn {
+    border: none;
+    font-size: inherit;
+    padding: 1% 2%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    background: #cb4e4e;
+    color: #fff;
+
+    /* default values */ 
+    opacity: .3;
+    cursor: not-allowed;
+}
+
+#scores-container {
+    width: 50%;
+    display: inline-block;
+    text-align: left;
+    margin: 0 0 20%;
+}
+
+@media(min-width: 800px){
+    main{
+        width: 60%;
+        max-width: 600px;
+    }
+}

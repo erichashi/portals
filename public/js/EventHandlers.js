@@ -1,9 +1,19 @@
+function clickBlock(block, x, y){
+    return(
+        block.x  <= x && 
+        block.x + block.width >= x &&
+        block.y <= y &&
+        block.y + block.height >= y
+        );
+}
+
 //clicks
 canvas.addEventListener('click', e => {
-    mouse.x = e.offsetX;
-    mouse.y = e.offsetY;
+    let mousex = e.offsetX;
+    let mousey = e.offsetY;
 
-    
+
+    //aqui inicia o jogo
     if(pause) {
         pause = false; 
         restartbtn.style.opacity = "1";
@@ -13,11 +23,13 @@ canvas.addEventListener('click', e => {
     };
 
     //iterar sobre muros, se clicou, adicionar portal
-    walls.forEach(block => { 
-        if (clickBlock(block)){
+    for (let i = 0; i < 4; i++) {
+        let block = walls[i];
+
+        if (clickBlock(block, mousex, mousey)){
 
             //se existem 2 portais, cortar o último
-            if(portals.length >= 2){
+            if(portals.length >= 2){                
                 //animação gsap
                 gsap.to(portals[0], {
                     radius: 0,
@@ -30,46 +42,35 @@ canvas.addEventListener('click', e => {
 
             //vertical ou horizontal
             if(block.height > block.width){
-            
-                portals.push(new Portal(block.x + (block.width/2), mouse.y, Math.floor(BLOCKSIZE/2), 'black', VERTICAL, id));
+    
+                //centralizar o portal no muro
+                portals.push(new Portal(block.x + (block.width/2), mousey, Math.floor(BLOCKSIZE/2), 'black', VERTICAL, portalid));
                 
             } else {
-                portals.push(new Portal(mouse.x, block.y + (block.height/2), Math.floor(BLOCKSIZE/2), 'black', HORIZONTAL, id));
+    
+                //idem
+                portals.push(new Portal(mousex, block.y + (block.height/2), Math.floor(BLOCKSIZE/2), 'black', HORIZONTAL, portalid));
             };
-            id++; 
+
+            portalid++; 
+    
             touch.currentTime = 0;
             touch.play();
+    
+            //aro branco
             try{
                 portals[1].current = false;
+                thereistwoportals = true;
             } catch(e){
+                //caso em que existe 1 portal apenas
                 portals[0].current = false;
             }
+
+            //break loop: nao da para clicar em dois muros
+            break;    
         };
-    });
-}) 
+        
+    };
 
-//resize
-window.addEventListener('resize', function(){
     
-    canvas.height = 600 //Math.floor(document.body.clientHeight*.8);
-    canvas.width = canvas.height;
-
-    if(document.body.clientWidth < canvas.width){
-        canvas.width = document.body.clientWidth *.9;
-        canvas.height =  canvas.width;
-    }
-
-    textcontainer.style.width = `${canvas.height}px`;
-
-    BLOCKSIZE = Math.floor(canvas.height/12);
-
-    FRICTION = 0.6;
-    GRAVITY = BALLRADIUS/24;
-    
-    BALLRADIUS = Math.floor(BLOCKSIZE/4);
-
-    cancelAnimationFrame(frame)
-
-    init();
-    update();
-} )
+})

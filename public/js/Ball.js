@@ -2,18 +2,20 @@
 
 //true if ball touches portal. false otherwise
 function touchPortal(x, y, radius, portal){
+
     if(portal.position === HORIZONTAL){
         if( x + radius <= portal.radius + portal.x &&
             x - radius >= portal.x - portal.radius){
    
+                //BAIXO
                 if(portal.more) return (y + radius >= portal.y - portal.radius);
 
+                //TOPO
                 else return ( y - radius <= portal.y + portal.radius);
 
             } else return false
                 
     } else { // vertical
-
         if (y + radius <= portal.radius + portal.y &&
             y - radius >= portal.y - portal.radius){
 
@@ -131,7 +133,7 @@ function Ball(x, y, radius, color){
         this.y += this.vel.y;
         this.vel.y += GRAVITY;  
 
-        //se não estiver teleportando, teportar permitido e existem 2 portais
+        //se nao estiver teleportando, teportar permitido e existem 2 portais
         //ou seja, se estiver no estado normal
         if(!this.teleporting && this.teleportenable && thereistwoportals){
 
@@ -148,7 +150,7 @@ function Ball(x, y, radius, color){
             })
         } 
 
-        //pedaço de código que potencialmente seja comprimido
+        //pedaco de codigo com o potencial de ser comprimido
         if(this.teleporting){
             // this.out = getOtherPortal(this.in);
             teleport(this.in, this.out)
