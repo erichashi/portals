@@ -1,97 +1,101 @@
-//Helper
-
 //return true if block touches "block" (target or sub)
-function touchTarget(block, width, height){
+function touchTarget(ballx, bally, blockx, blocky, width,height){
     return (
-        ball.y + ball.radius >= block.y && 
-        ball.y - ball.radius <= block.y + height  && 
-        ball.x + ball.radius >= block.x &&
-        ball.x - ball.radius <= block.x + width
+        bally + BALLRADIUS >= blocky && 
+        bally - BALLRADIUS <= blocky + height  && 
+        ballx + BALLRADIUS >= blockx &&
+        ballx - BALLRADIUS <= blockx + width
     )
 }
 
-function Target(x, y, size){
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.on = true;
-    
-    //área em azul
-    this.sub = {
-        //valores iniciais são o target inteiro
-        x: this.x,
-        y: this.y,
-        height: this.size,
-        width: this.size,
-    };
-    
-    //side of sub area (1: topo, 2: dir, 3: baixo, 4: esq)
-    this.side = 0;
+class Target{
+    constructor(x, y, ball){
+        this.x = x;
+        this.y = y;
+        this.ball = ball;
+
+        this.size = BLOCKSIZE;
+
+        this.on = true;
+        
+        //área em azul
+        this.sub = {
+            //valores iniciais são o target inteiro
+            x: this.x,
+            y: this.y,
+            height: BLOCKSIZE,
+            width: BLOCKSIZE,
+        };
+        
+        //side of sub area (1: topo, 2: dir, 3: baixo, 4: esq)
+        this.side = -1;
+    }
 
     //new position após ser acertado pela bola
-    this.newpos = () => {
+    newpos() {
         this.x = Math.floor(randomFromRange(BLOCKSIZE*2, canvas.width-BLOCKSIZE*2));
         this.y = Math.floor(randomFromRange(BLOCKSIZE*2, canvas.height-BLOCKSIZE*2));
+
         this.side = Math.floor(randomFromRange(1, 5));
+
         gsap.to( this, {
-            size: size,
+            size: BLOCKSIZE,
             onComplete: ()=>{
-                this.size = size;
+                this.size = BLOCKSIZE;
             }
         });
 
         //valores de side
         switch(this.side){
             case(1):
-                this.sub = {
+                this.sub =  {
                     x: this.x,
                     y: this.y,
-                    width: size,
-                    height: size/4,
+                    width: BLOCKSIZE,
+                    height: BLOCKSIZE/4,
                 }
                 break;
             case(2):
                 this.sub = {
-                    x: this.x + 3*size/4,
+                    x: this.x + 3*BLOCKSIZE/4,
                     y: this.y,
-                    width: size/4,
-                    height: size,
+                    width: BLOCKSIZE/4,
+                    height: BLOCKSIZE,
                 }
                 break;
             case(3):
                 this.sub = {
                     x: this.x,
-                    y: this.y + 3*size/4,
-                    width: size,
-                    height: size/4,
+                    y: this.y + 3*BLOCKSIZE/4,
+                    width: BLOCKSIZE,
+                    height: BLOCKSIZE/4,
                 }
                 break;
             case(4):
                 this.sub = {
                     x: this.x,
                     y: this.y,
-                    width: size/4,
-                    height: size,
+                    width: BLOCKSIZE/4,
+                    height: BLOCKSIZE,
                 }
                 break;
         }
 
         this.on = true
-        score++;
-        scoretext.innerHTML = score;
-        // score++;
+        gStateMachine.current.score++;
+        scoretext.innerHTML = gStateMachine.current.score;
 
     }
 
-    this.update = () => {
-        this.draw();
+    update(){
+        this.render();
         
         // se encostou no cubo
-        if(touchTarget(this, this.size, this.size) ){
+        if(touchTarget(this.ball.x, this.ball.y, this.x, this.y, BLOCKSIZE, BLOCKSIZE) ){
 
             // se encostou no sub
-            if( touchTarget(this.sub, this.sub.width, this.sub.height) && this.on){
-                point.play();
+            if( touchTarget(this.ball.x, this.ball.y, this.sub.x, this.sub.y, this.sub.width, this.sub.height ) && this.on){
+                gSounds['point'].play();
                 this.on = false;
                 gsap.to( this, {
                     size: 0,
@@ -108,13 +112,16 @@ function Target(x, y, size){
             } 
 
 
-            ball.vel.y *= -FRICTION;
-            ball.vel.x += -randomFromRange(-5, 5);    
+            // this.ball.vel.y *= -FRICTION;
+            // this.ball.vel.x += -randomFromRange(-5, 5);    
+
+            this.ball.vel.y *= -FRICTION;
+            this.ball.vel.x *= -1;
 
         }
     }
 
-    this.draw = () => {
+    render() {
         ctx.beginPath();
         ctx.strokeStyle = 'black';
         
@@ -130,7 +137,6 @@ function Target(x, y, size){
         ctx.fill();
         
         ctx.closePath();
-        // ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
     }
 
 }

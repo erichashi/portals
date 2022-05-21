@@ -22,6 +22,8 @@ body{
     overscroll-behavior: contain;
     touch-action: manipulation;
 
+    overflow: hidden;
+
 }
 
 main{
@@ -67,6 +69,6 @@ main{
 @media(min-width: 800px){
     main{
         width: 60%;
-        max-width: 600px;
+        max-width: 550px;
     }
 }
